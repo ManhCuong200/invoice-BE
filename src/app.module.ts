@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { OcrModule } from './ocr/ocr.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { OcrModule } from './ocr/ocr.module';
     AuthModule,
     InvoicesModule,
     OcrModule,
+    CompaniesModule,
   ],
 })
 export class AppModule { }
