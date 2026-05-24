@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OcrService } from '../ocr/ocr.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
@@ -72,7 +72,7 @@ export class InvoicesService {
                 },
             });
 
-            throw error;
+            throw new BadRequestException(error.message);
         }
     }
 
