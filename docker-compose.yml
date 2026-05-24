@@ -1,0 +1,43 @@
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: invoice-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: invoice_ocr_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  backend-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: invoice-backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:mysecretpassword@postgres-db:5432/invoice_ocr_db?schema=public"
+      JWT_SECRET: "${JWT_SECRET}"
+      OPENAI_API_KEY: "sk-proj-dien_key_cua_ban_o_day"
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+      GOOGLE_CALLBACK_URL: "${GOOGLE_CALLBACK_URL}"
+      FRONTEND_URL: "${FRONTEND_URL}"
+    depends_on:
+      - postgres-db
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

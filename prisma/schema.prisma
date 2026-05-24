@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum InvoiceType {
+  HOA_DON
+  PHIEU_THU
+  PHIEU_CHI
+  PHIEU_NHAP_KHO
+  KHAC
+}
+
+enum InvoiceStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  fullName      String?
+  avatarUrl     String?
+  role          Role       @default(STAFF)
+  isActive      Boolean    @default(true)
+  refreshToken  String?    // <--- THÊM DÒNG NÀY ĐỂ LƯU REFRESH TOKEN
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  
+  invoices      Invoice[]
+  auditLogs     AuditLog[]
+}
+
+model Company {
+  id          String    @id @default(uuid())
+  name        String    
+  taxCode     String?   @unique 
+  address     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  invoices    Invoice[]
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  title         String?       
+  fileUrl       String        
+  fileType      String        
+  invoiceType   InvoiceType   @default(HOA_DON)
+  status        InvoiceStatus @default(PENDING)
+  ocrData       Json?         
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  companyId     String
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId        String        
+  user          User          @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String   
+  description String?  
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
